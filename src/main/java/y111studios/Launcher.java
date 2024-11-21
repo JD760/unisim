@@ -1,14 +1,14 @@
 package y111studios;
 
 /**
- * Launcher class used to inject the required argument for the LibGDX to work on MacOS, while
+ * Launcher class used to inject the required argument for the LibGDX to work on macOS, while
  * retaining the ability to run the application on other operating systems.
  */
 public abstract class Launcher {
 
     /**
      * Main method that launches the application. This method will attempt to launch the application
-     * with the required argument for MacOS. If an exception occurs, the application will be
+     * with the required argument for macOS. If an exception occurs, the application will be
      * launched normally.
      * 
      * @param args the command line arguments
