@@ -26,12 +26,12 @@ public abstract class Launcher {
 
             ProcessBuilder builder;
             // Handle windows uniquely to prevent issues with the required argument
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                builder = new ProcessBuilder(javaBin, "-cp", classpath, className);
-            } else {
+            if (System.getProperty("os.name").toLowerCase().contains("mac")) {
                 // Pass in the argument
                 builder = new ProcessBuilder(javaBin, "-XstartOnFirstThread", "-cp", classpath,
                         className);
+            } else {
+                builder = new ProcessBuilder(javaBin, "-cp", classpath, className);
             }
             builder.inheritIO(); // Pass IO to new process
             // Begin process
