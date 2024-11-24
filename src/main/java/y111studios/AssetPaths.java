@@ -12,7 +12,10 @@ import lombok.Getter;
  */
 public enum AssetPaths {
     START_SCREEN("assets/StartScreen.png"),
-    MAP_BACKGROUND("assets/UnisimMap.png"),
+    MAP_BACKGROUND_TOP_LEFT("assets/UnisimMapTL.png"),
+    MAP_BACKGROUND_TOP_RIGHT("assets/UnisimMapTR.png"),
+    MAP_BACKGROUND_BOTTOM_LEFT("assets/UnisimMapBL.png"),
+    MAP_BACKGROUND_BOTTOM_RIGHT("assets/UnisimMapBR.png"),
     MENU("assets/Menu.png"),
     ACCOMMODATION_MENU("assets/Accommodation.png"),
     CATERING_MENU("assets/Catering.png"),
@@ -41,5 +44,4 @@ public enum AssetPaths {
     AssetPaths(String path) {
         this.path = path;
     }
-    
 }
