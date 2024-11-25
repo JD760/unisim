@@ -160,10 +160,10 @@ public class MapScreen extends ScreenAdapter {
          * Updates camera position based on velocity.
          */
         public void shift() {
-            x += vx * scale;
+            x += (int) (vx * scale);
             if(x > 5110 - WIDTH * scale) x = 5110 - (int)(WIDTH * scale);
             if(x < 0) x = 0;
-            y += vy * scale;
+            y += (int) (vy * scale);
             if(y > 2680 - (HEIGHT - 100) * scale) y = 2680 - (int)((HEIGHT - 100) * scale);
             if(y < 0) y = 0;
         }
@@ -200,7 +200,7 @@ public class MapScreen extends ScreenAdapter {
     /**
      * Adds an object to the game.
      * 
-     * @param object The object to add.
+     * @param variant The object to add.
      * @return Whether the object was added.
      */
     public boolean addObject(VariantProperties variant, GridPosition coords) {
@@ -239,7 +239,7 @@ public class MapScreen extends ScreenAdapter {
                 return true;
             }
         }
-        throw new UnreachableException("State desynced with renderOrdering");
+        throw new UnreachableException("State de-synced with renderOrdering");
     }
 
     /**
@@ -263,7 +263,7 @@ public class MapScreen extends ScreenAdapter {
         cateringMenu = game.getAsset(AssetPaths.CATERING_MENU);
         teachingMenu = game.getAsset(AssetPaths.TEACHING_MENU);
         pauseMenu = game.getAsset(AssetPaths.PAUSE);
-        menuTab = MenuTab.ACCOMODATION;
+        menuTab = MenuTab.ACCOMMODATION;
         menuItem = -1;
         camera = new Camera(2000, 1000);
         buildingTextures = new Texture[] {game.getAsset(AssetPaths.ACC1), game.getAsset(AssetPaths.ACC2), game.getAsset(AssetPaths.ACC3),
@@ -272,7 +272,7 @@ public class MapScreen extends ScreenAdapter {
                                           game.getAsset(AssetPaths.REC2), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.TEACH1), game.getAsset(AssetPaths.TEACH2),
                                           game.getAsset(AssetPaths.TEACH3), game.getAsset(AssetPaths.TEACH4), game.getAsset(AssetPaths.TEACH5), game.getAsset(AssetPaths.TRASH)};
         buildingVariants = new HashMap<>();
-        buildingVariants.put(MenuTab.ACCOMODATION, AccomodationVariant.values());
+        buildingVariants.put(MenuTab.ACCOMMODATION, AccommodationVariant.values());
         buildingVariants.put(MenuTab.TEACHING, TeachingVariant.values());
 
         VariantProperties[] jointTabVariants = new VariantProperties[CateringVariant.values().length + RecreationVariant.values().length];
@@ -315,9 +315,9 @@ public class MapScreen extends ScreenAdapter {
                 } else if(keyCode == Input.Keys.UP || keyCode == Input.Keys.W) {
                     camera.addVelocity(0, -8);
                 } else if(keyCode == Input.Keys.X) {
-                    if(camera.scale < 5) camera.scale *= 1.5;
+                    if(camera.scale < 5) camera.scale *= 1.5f;
                 } else if(keyCode == Input.Keys.Z) {
-                    if(camera.scale > 0.5) camera.scale /= 1.5;
+                    if(camera.scale > 0.5) camera.scale /= 1.5f;
                 }
                 return true;
             }
@@ -352,7 +352,7 @@ public class MapScreen extends ScreenAdapter {
                 if(screenPos.y < 100) {
                     if(screenPos.y > 80) {
                         if(screenPos.x < 155) {
-                            menuTab = MenuTab.ACCOMODATION;
+                            menuTab = MenuTab.ACCOMMODATION;
                         } else if(screenPos.x > 245 && screenPos.x < 395) {
                             menuTab = MenuTab.CATERING_RECREATION;
                         } else if(screenPos.x > 490) {
@@ -376,7 +376,7 @@ public class MapScreen extends ScreenAdapter {
                     try{
                         removeObject(pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
                     } catch(IllegalStateException e) {
-
+                        throw new RuntimeException(e);
                     }
                 }
                 return true;
@@ -472,8 +472,6 @@ public class MapScreen extends ScreenAdapter {
             game.spritebatch.setColor(NORMAL);
         }
         // Draw the game map
-        int width = Math.max(0, Math.min(WIDTH, (int)(gameMap[0].getWidth() / camera.scale - camera.x / camera.scale)));
-        int height = Math.max(0, Math.min(HEIGHT, (int)(camera.y / camera.scale)));
         game.spritebatch.draw(gameMap[0], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y + 1,
             (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
         game.spritebatch.draw(gameMap[1], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y + 1,

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import y111studios.buildings.premade_variants.AccomodationVariant;
+import y111studios.buildings.premade_variants.AccommodationVariant;
 import y111studios.buildings.premade_variants.CateringVariant;
 import y111studios.buildings.premade_variants.RecreationVariant;
 import y111studios.buildings.premade_variants.TeachingVariant;
@@ -19,7 +19,7 @@ public class BuildingTypeTest {
     final GridPosition ZERO = new GridPosition(0, 0);
     Building building;
 
-    building = BuildingFactory.createBuilding(AccomodationVariant.SMALL_HOUSE, ZERO);
+    building = BuildingFactory.createBuilding(AccommodationVariant.SMALL_HOUSE, ZERO);
     assertEquals(BuildingType.ACCOMMODATION, BuildingType.fromBuilding(building));
 
     building = BuildingFactory.createBuilding(CateringVariant.FAST_FOOD, ZERO);

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import y111studios.buildings.premade_variants.AccomodationVariant;
+import y111studios.buildings.premade_variants.AccommodationVariant;
 import y111studios.buildings.premade_variants.CateringVariant;
 import y111studios.buildings.premade_variants.RecreationVariant;
 import y111studios.buildings.premade_variants.TeachingVariant;
@@ -25,19 +25,19 @@ public class BuildingFactoryTest {
     @Test
     void preventNullCreation() {
       assertThrows(IllegalArgumentException.class, () -> {
-        BuildingFactory.createBuilding((AccomodationVariant) null, DEFAULT_POSITION);
+        BuildingFactory.createBuilding((AccommodationVariant) null, DEFAULT_POSITION);
         BuildingFactory.createBuilding((CateringVariant) null, DEFAULT_POSITION);
         BuildingFactory.createBuilding((RecreationVariant) null, DEFAULT_POSITION);
         BuildingFactory.createBuilding((TeachingVariant) null, DEFAULT_POSITION);
       });
       assertThrows(IllegalArgumentException.class, () -> {
-        BuildingFactory.createBuilding(AccomodationVariant.SMALL_HOUSE, null);
+        BuildingFactory.createBuilding(AccommodationVariant.SMALL_HOUSE, null);
       });
     }
 
     @ParameterizedTest
-    @EnumSource(value = AccomodationVariant.class)
-    void accomodationBuildingCreation(AccomodationVariant variant) {
+    @EnumSource(value = AccommodationVariant.class)
+    void accommodationBuildingCreation(AccommodationVariant variant) {
       assertDoesNotThrow(() -> {
         BuildingFactory.createBuilding(variant, DEFAULT_POSITION);
       });

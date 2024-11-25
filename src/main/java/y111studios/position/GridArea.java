@@ -101,7 +101,7 @@ public class GridArea {
      * <p>
      * This method returns true if the x-coordinate of the other position is within the range
      * [origin.x, origin.x + width) and the y-coordinate is within the range [origin.y, origin.y +
-     * height). If other is {@Code null}, this method returns false.
+     * height). If other is {@code null}, this method returns false.
      * </p>
      * 
      * @param other the GridPosition to check

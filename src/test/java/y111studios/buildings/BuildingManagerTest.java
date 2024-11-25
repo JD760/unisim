@@ -1,9 +1,5 @@
 package y111studios.buildings;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +7,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import y111studios.buildings.premade_variants.AccomodationVariant;
+import y111studios.buildings.premade_variants.AccommodationVariant;
 import y111studios.position.GridPosition;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuildingManagerTest {
 
@@ -20,7 +18,7 @@ public class BuildingManagerTest {
 
   static final GridPosition ZERO = new GridPosition(0, 0);
   static final Building building = BuildingFactory.createBuilding(
-      AccomodationVariant.SMALL_HOUSE, ZERO);
+      AccommodationVariant.SMALL_HOUSE, ZERO);
 
   @BeforeEach
   void setUp() {
@@ -28,7 +26,7 @@ public class BuildingManagerTest {
   }
 
   private void fillManager() {
-    while (manager.isFull() == false) {
+    while (!manager.isFull()) {
       manager.push(building);
     }
     assertTrue(manager.isFull());
@@ -38,7 +36,7 @@ public class BuildingManagerTest {
     for (int i = 0; i < count; i++) {
       manager.push(building);
     }
-    assertTrue(manager.getCount() == count);
+    assertEquals(manager.getCount(), count);
   }
 
   @Test
@@ -50,7 +48,7 @@ public class BuildingManagerTest {
   @Test
   void pushBuilding() {
     int count = 0;
-    while (manager.isFull() == false) {
+    while (!manager.isFull()) {
       manager.push(building);
       assertEquals(manager.getCount(), ++count);
     }
@@ -60,7 +58,7 @@ public class BuildingManagerTest {
 
   @Test
   void removeIndex() {
-    // Setup the manager with 5 buildings
+    // Set up the manager with 5 buildings
     pushToManager(5);
 
     // Bounds check
@@ -100,7 +98,7 @@ public class BuildingManagerTest {
 
   @Test
   void exhaustivelyRemove() {
-    // Setup the manager with 10 buildings
+    // Set up the manager with 10 buildings
     pushToManager(10);
 
     // Remove all buildings
@@ -134,7 +132,7 @@ public class BuildingManagerTest {
     pushToManager(1);
 
     assertEquals(manager.getBuilding(ZERO), building);
-    assertEquals(manager.getBuilding(new GridPosition(100, 100)), null);
+    assertNull(manager.getBuilding(new GridPosition(100, 100)));
   }
 
 }

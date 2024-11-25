@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-// Loading assests at game start
+// Loading assets at game start
 public class Main extends Game {
 
     public AssetLibrary assetLib;
@@ -30,9 +30,6 @@ public class Main extends Game {
         font.setColor(Color.BLACK);
         font.getData().setScale(1.3f);
         Gdx.graphics.setWindowedMode(1280, 960);
-        while (!assetLib.manager.update()) {
-            continue;
-        }
         this.setScreen(new MapScreen(this));
 
         // Templates

@@ -4,7 +4,7 @@ import y111studios.buildings.premade_variants.TeachingVariant;
 import y111studios.position.GridPosition;
 
 /**
- * A class representing an teaching building within the game. This class extends the
+ * A class representing a teaching building within the game. This class extends the
  * {@link Building} class.
  * 
  * @see Building

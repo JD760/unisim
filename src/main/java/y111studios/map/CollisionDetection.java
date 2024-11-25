@@ -47,6 +47,7 @@ public class CollisionDetection {
      * @param area the area to check
      * @return true if the building will have valid bounds if placed on the map, false otherwise
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean withinBounds(GridArea area) {
         return mapArea.contains(area);
     }
