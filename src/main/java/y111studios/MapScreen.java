@@ -120,77 +120,6 @@ public class MapScreen extends ScreenAdapter {
     boolean showDebugInfo = false;
 
     /**
-     * Stores the camera position, velocity and scale.
-     */
-    private class Camera {
-
-        /**
-         * The camera's x coordinate.
-         */
-        int x;
-        /**
-         * The camera's y coordinate.
-         */
-        int y;
-        /**
-         * The camera's horizontal velocity.
-         */
-        int vx;
-        /**
-         * The camera's vertical velocity.
-         */
-        int vy;
-        /**
-         * The camera's scale.
-         */
-        float scale;
-
-        /**
-         * Initializes the camera at the given coordinates.
-         */
-        public Camera(int x, int y) {
-            this.x = x;
-            this.y = y;
-            vx = 0;
-            vy = 0;
-            scale = 2.25f;
-        }
-
-        /**
-         * Updates camera position based on velocity.
-         */
-        public void shift() {
-            x += (int) (vx * scale);
-            if(x > 5110 - WIDTH * scale) x = 5110 - (int)(WIDTH * scale);
-            if(x < 0) x = 0;
-            y += (int) (vy * scale);
-            if(y > 2680 - (HEIGHT - 100) * scale) y = 2680 - (int)((HEIGHT - 100) * scale);
-            if(y < 0) y = 0;
-        }
-
-        /**
-         * Changes the velocity of the camera.
-         * 
-         * @param vx The change to horizontal velocity.
-         * @param vy The change to vertical velocity.
-         */
-        public void addVelocity(int vx, int vy) {
-            this.vx += vx;
-            this.vy += vy;
-        }
-
-        /**
-         * Resets the camera's velocity
-         * 
-         */
-        public void velocityReset() {
-        	this.vx = 0;
-        	this.vy = 0;
-        }
-
-    }
-
-    /**
      * The game camera.
      */
     Camera camera;
@@ -265,7 +194,7 @@ public class MapScreen extends ScreenAdapter {
         pauseMenu = game.getAsset(AssetPaths.PAUSE);
         menuTab = MenuTab.ACCOMMODATION;
         menuItem = -1;
-        camera = new Camera(2000, 1000);
+        camera = new Camera(2000, 1000, WIDTH, HEIGHT);
         buildingTextures = new Texture[] {game.getAsset(AssetPaths.ACC1), game.getAsset(AssetPaths.ACC2), game.getAsset(AssetPaths.ACC3),
                                           game.getAsset(AssetPaths.ACC4), game.getAsset(AssetPaths.ACC5), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.CATER1),
                                           game.getAsset(AssetPaths.CATER2), game.getAsset(AssetPaths.CATER3), game.getAsset(AssetPaths.REC1),
