@@ -60,9 +60,9 @@ public class MapScreen extends ScreenAdapter {
      */
     GameState gameState;
     /**
-     * The texture for the game map.
+     * The textures for the game map.
      */
-    Texture gameMap;
+    Texture[] gameMap = new Texture[4];
     /**
      * The texture for the building menu.
      */
@@ -118,7 +118,7 @@ public class MapScreen extends ScreenAdapter {
      * Toggle flag for debug info screen.
      */
     boolean showDebugInfo = false;
-    
+
     /**
      * Stores the camera position, velocity and scale.
      */
@@ -164,7 +164,7 @@ public class MapScreen extends ScreenAdapter {
             if(x > 5110 - WIDTH * scale) x = 5110 - (int)(WIDTH * scale);
             if(x < 0) x = 0;
             y += vy * scale;
-            if(y > 2680 - HEIGHT * scale) y = 2680 - (int)(HEIGHT * scale);
+            if(y > 2680 - (HEIGHT - 100) * scale) y = 2680 - (int)((HEIGHT - 100) * scale);
             if(y < 0) y = 0;
         }
 
@@ -178,8 +178,7 @@ public class MapScreen extends ScreenAdapter {
             this.vx += vx;
             this.vy += vy;
         }
-        
-        
+
         /**
          * Resets the camera's velocity
          * 
@@ -255,7 +254,10 @@ public class MapScreen extends ScreenAdapter {
         viewport = new FitViewport(WIDTH, HEIGHT);
         viewport.getCamera().position.set(WIDTH / 2f, HEIGHT / 2f, 0);
         viewport.getCamera().update();
-        gameMap = game.getAsset(AssetPaths.MAP_BACKGROUND);
+        gameMap[0] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_LEFT);
+        gameMap[1] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_RIGHT);
+        gameMap[2] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_LEFT);
+        gameMap[3] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_RIGHT);
         menu = game.getAsset(AssetPaths.MENU);
         accommodationMenu = game.getAsset(AssetPaths.ACCOMMODATION_MENU);
         cateringMenu = game.getAsset(AssetPaths.CATERING_MENU);
@@ -459,7 +461,7 @@ public class MapScreen extends ScreenAdapter {
         ScreenUtils.clear(0, 0, 0, 0);
 
         viewport.apply();
-        
+
         camera.shift();
 
         game.spritebatch.begin();
@@ -470,7 +472,16 @@ public class MapScreen extends ScreenAdapter {
             game.spritebatch.setColor(NORMAL);
         }
         // Draw the game map
-        game.spritebatch.draw(gameMap, 0, 0, WIDTH, HEIGHT, camera.x, camera.y, (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        int width = Math.max(0, Math.min(WIDTH, (int)(gameMap[0].getWidth() / camera.scale - camera.x / camera.scale)));
+        int height = Math.max(0, Math.min(HEIGHT, (int)(camera.y / camera.scale)));
+        game.spritebatch.draw(gameMap[0], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y + 1,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[1], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y + 1,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[2], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y - gameMap[0].getHeight() + 3,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[3], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y - gameMap[0].getHeight() + 3,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
 
         // Add building placement hologram
 
@@ -486,7 +497,7 @@ public class MapScreen extends ScreenAdapter {
             }
 
             renderBuilding(possibleInstance); // Render hologram
-            
+
             // Reset colour to previous one
             if(gameState.isPaused()) {
                 game.spritebatch.setColor(PAUSED_DULLING);
@@ -498,13 +509,13 @@ public class MapScreen extends ScreenAdapter {
         // Render buildings
 
         renderOrdering.forEach(this::renderBuilding);
-        
+
         // Draw the menu
         game.spritebatch.draw(menu, (menuTab.toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
         game.spritebatch.draw(accommodationMenu, 5, 85);
         game.spritebatch.draw(cateringMenu, 248, 85);
         game.spritebatch.draw(teachingMenu, 491, 85);
-        
+
         // Draw the appropriate items in the menu
         for(int i = 0; i < 6; i++) {
             if(i == menuItem || gameState.isPaused()) {
@@ -518,7 +529,7 @@ public class MapScreen extends ScreenAdapter {
             }
             game.spritebatch.draw(buildingTextures[j], 10 + i * 80, 15, 50, (int)((float)buildingTextures[j].getHeight() / buildingTextures[j].getWidth() * 50), 0, 0, buildingTextures[j].getWidth(), buildingTextures[j].getHeight(), false, false);
         }
-        
+
         // Render the time remaining at the top of the screen
 
         Duration timeRemaining = gameState.timeRemaining();
@@ -535,25 +546,22 @@ public class MapScreen extends ScreenAdapter {
         if (showDebugInfo) {
             int buildingCount = gameState.getCount();
             String buildingString = String.format("Count: %d / %d", buildingCount, BuildingManager.MAX_BUILDINGS);
-    
+
             float buildingX = 15;
             float buildingY = 120;
             game.font.draw(game.spritebatch, buildingString, buildingX, buildingY);
-    
+
             // Render individual building counts
-    
+
             Map<BuildingType, Integer> buildingCounts = gameState.buildingManager.getCounter().getBuildingMap();
             for (BuildingType type : BuildingType.values()) {
                 int count = buildingCounts.get(type);
                 String countString = String.format("%c: %d", type.toString().toCharArray()[0], count);
                 buildingY += 20;
                 game.font.draw(game.spritebatch, countString, buildingX, buildingY);
-             
             }
-           
+
             game.font.draw(game.spritebatch, String.valueOf(Gdx.graphics.getFramesPerSecond()), 15, (buildingY + 20));
-            
-           
         }
 
         // Draw the pause menu if paused

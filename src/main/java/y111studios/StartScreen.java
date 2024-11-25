@@ -15,7 +15,7 @@ public class StartScreen extends ScreenAdapter {
     Texture startScreen;
 
     OrthographicCamera camera;
-    
+
     /**
      * Sets up the camera and loads the background
      * 
