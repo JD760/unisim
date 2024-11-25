@@ -375,8 +375,7 @@ public class MapScreen extends ScreenAdapter {
                 } else if(menuItem == 5) {
                     try{
                         removeObject(pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
-                    } catch(IllegalStateException e) {
-                        throw new RuntimeException(e);
+                    } catch(IllegalStateException ignored) {
                     }
                 }
                 return true;
