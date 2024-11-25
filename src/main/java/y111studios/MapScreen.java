@@ -60,9 +60,9 @@ public class MapScreen extends ScreenAdapter {
      */
     GameState gameState;
     /**
-     * The texture for the game map.
+     * The textures for the game map.
      */
-    Texture gameMap;
+    Texture[] gameMap = new Texture[4];
     /**
      * The texture for the building menu.
      */
@@ -118,78 +118,6 @@ public class MapScreen extends ScreenAdapter {
      * Toggle flag for debug info screen.
      */
     boolean showDebugInfo = false;
-    
-    /**
-     * Stores the camera position, velocity and scale.
-     */
-    private class Camera {
-
-        /**
-         * The camera's x coordinate.
-         */
-        int x;
-        /**
-         * The camera's y coordinate.
-         */
-        int y;
-        /**
-         * The camera's horizontal velocity.
-         */
-        int vx;
-        /**
-         * The camera's vertical velocity.
-         */
-        int vy;
-        /**
-         * The camera's scale.
-         */
-        float scale;
-
-        /**
-         * Initializes the camera at the given coordinates.
-         */
-        public Camera(int x, int y) {
-            this.x = x;
-            this.y = y;
-            vx = 0;
-            vy = 0;
-            scale = 2.25f;
-        }
-
-        /**
-         * Updates camera position based on velocity.
-         */
-        public void shift() {
-            x += vx * scale;
-            if(x > 5110 - WIDTH * scale) x = 5110 - (int)(WIDTH * scale);
-            if(x < 0) x = 0;
-            y += vy * scale;
-            if(y > 2680 - HEIGHT * scale) y = 2680 - (int)(HEIGHT * scale);
-            if(y < 0) y = 0;
-        }
-
-        /**
-         * Changes the velocity of the camera.
-         * 
-         * @param vx The change to horizontal velocity.
-         * @param vy The change to vertical velocity.
-         */
-        public void addVelocity(int vx, int vy) {
-            this.vx += vx;
-            this.vy += vy;
-        }
-        
-        
-        /**
-         * Resets the camera's velocity
-         * 
-         */
-        public void velocityReset() {
-        	this.vx = 0;
-        	this.vy = 0;
-        }
-
-    }
 
     /**
      * The game camera.
@@ -201,7 +129,7 @@ public class MapScreen extends ScreenAdapter {
     /**
      * Adds an object to the game.
      * 
-     * @param object The object to add.
+     * @param variant The object to add.
      * @return Whether the object was added.
      */
     public boolean addObject(VariantProperties variant, GridPosition coords) {
@@ -240,7 +168,7 @@ public class MapScreen extends ScreenAdapter {
                 return true;
             }
         }
-        throw new UnreachableException("State desynced with renderOrdering");
+        throw new UnreachableException("State de-synced with renderOrdering");
     }
 
     /**
@@ -255,22 +183,25 @@ public class MapScreen extends ScreenAdapter {
         viewport = new FitViewport(WIDTH, HEIGHT);
         viewport.getCamera().position.set(WIDTH / 2f, HEIGHT / 2f, 0);
         viewport.getCamera().update();
-        gameMap = game.getAsset(AssetPaths.MAP_BACKGROUND);
+        gameMap[0] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_LEFT);
+        gameMap[1] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_RIGHT);
+        gameMap[2] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_LEFT);
+        gameMap[3] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_RIGHT);
         menu = game.getAsset(AssetPaths.MENU);
         accommodationMenu = game.getAsset(AssetPaths.ACCOMMODATION_MENU);
         cateringMenu = game.getAsset(AssetPaths.CATERING_MENU);
         teachingMenu = game.getAsset(AssetPaths.TEACHING_MENU);
         pauseMenu = game.getAsset(AssetPaths.PAUSE);
-        menuTab = MenuTab.ACCOMODATION;
+        menuTab = MenuTab.ACCOMMODATION;
         menuItem = -1;
-        camera = new Camera(2000, 1000);
+        camera = new Camera(2000, 1000, WIDTH, HEIGHT);
         buildingTextures = new Texture[] {game.getAsset(AssetPaths.ACC1), game.getAsset(AssetPaths.ACC2), game.getAsset(AssetPaths.ACC3),
                                           game.getAsset(AssetPaths.ACC4), game.getAsset(AssetPaths.ACC5), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.CATER1),
                                           game.getAsset(AssetPaths.CATER2), game.getAsset(AssetPaths.CATER3), game.getAsset(AssetPaths.REC1),
                                           game.getAsset(AssetPaths.REC2), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.TEACH1), game.getAsset(AssetPaths.TEACH2),
                                           game.getAsset(AssetPaths.TEACH3), game.getAsset(AssetPaths.TEACH4), game.getAsset(AssetPaths.TEACH5), game.getAsset(AssetPaths.TRASH)};
         buildingVariants = new HashMap<>();
-        buildingVariants.put(MenuTab.ACCOMODATION, AccomodationVariant.values());
+        buildingVariants.put(MenuTab.ACCOMMODATION, AccommodationVariant.values());
         buildingVariants.put(MenuTab.TEACHING, TeachingVariant.values());
 
         VariantProperties[] jointTabVariants = new VariantProperties[CateringVariant.values().length + RecreationVariant.values().length];
@@ -313,9 +244,9 @@ public class MapScreen extends ScreenAdapter {
                 } else if(keyCode == Input.Keys.UP || keyCode == Input.Keys.W) {
                     camera.addVelocity(0, -8);
                 } else if(keyCode == Input.Keys.X) {
-                    if(camera.scale < 5) camera.scale *= 1.5;
+                    if(camera.scale < 5) camera.scale *= 1.5f;
                 } else if(keyCode == Input.Keys.Z) {
-                    if(camera.scale > 0.5) camera.scale /= 1.5;
+                    if(camera.scale > 0.5) camera.scale /= 1.5f;
                 }
                 return true;
             }
@@ -350,7 +281,7 @@ public class MapScreen extends ScreenAdapter {
                 if(screenPos.y < 100) {
                     if(screenPos.y > 80) {
                         if(screenPos.x < 155) {
-                            menuTab = MenuTab.ACCOMODATION;
+                            menuTab = MenuTab.ACCOMMODATION;
                         } else if(screenPos.x > 245 && screenPos.x < 395) {
                             menuTab = MenuTab.CATERING_RECREATION;
                         } else if(screenPos.x > 490) {
@@ -373,8 +304,7 @@ public class MapScreen extends ScreenAdapter {
                 } else if(menuItem == 5) {
                     try{
                         removeObject(pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
-                    } catch(IllegalStateException e) {
-
+                    } catch(IllegalStateException ignored) {
                     }
                 }
                 return true;
@@ -459,7 +389,7 @@ public class MapScreen extends ScreenAdapter {
         ScreenUtils.clear(0, 0, 0, 0);
 
         viewport.apply();
-        
+
         camera.shift();
 
         game.spritebatch.begin();
@@ -470,7 +400,14 @@ public class MapScreen extends ScreenAdapter {
             game.spritebatch.setColor(NORMAL);
         }
         // Draw the game map
-        game.spritebatch.draw(gameMap, 0, 0, WIDTH, HEIGHT, camera.x, camera.y, (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[0], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y + 1,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[1], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y + 1,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[2], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y - gameMap[0].getHeight() + 3,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
+        game.spritebatch.draw(gameMap[3], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y - gameMap[0].getHeight() + 3,
+            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
 
         // Add building placement hologram
 
@@ -486,7 +423,7 @@ public class MapScreen extends ScreenAdapter {
             }
 
             renderBuilding(possibleInstance); // Render hologram
-            
+
             // Reset colour to previous one
             if(gameState.isPaused()) {
                 game.spritebatch.setColor(PAUSED_DULLING);
@@ -498,13 +435,13 @@ public class MapScreen extends ScreenAdapter {
         // Render buildings
 
         renderOrdering.forEach(this::renderBuilding);
-        
+
         // Draw the menu
         game.spritebatch.draw(menu, (menuTab.toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
         game.spritebatch.draw(accommodationMenu, 5, 85);
         game.spritebatch.draw(cateringMenu, 248, 85);
         game.spritebatch.draw(teachingMenu, 491, 85);
-        
+
         // Draw the appropriate items in the menu
         for(int i = 0; i < 6; i++) {
             if(i == menuItem || gameState.isPaused()) {
@@ -518,7 +455,7 @@ public class MapScreen extends ScreenAdapter {
             }
             game.spritebatch.draw(buildingTextures[j], 10 + i * 80, 15, 50, (int)((float)buildingTextures[j].getHeight() / buildingTextures[j].getWidth() * 50), 0, 0, buildingTextures[j].getWidth(), buildingTextures[j].getHeight(), false, false);
         }
-        
+
         // Render the time remaining at the top of the screen
 
         Duration timeRemaining = gameState.timeRemaining();
@@ -535,25 +472,22 @@ public class MapScreen extends ScreenAdapter {
         if (showDebugInfo) {
             int buildingCount = gameState.getCount();
             String buildingString = String.format("Count: %d / %d", buildingCount, BuildingManager.MAX_BUILDINGS);
-    
+
             float buildingX = 15;
             float buildingY = 120;
             game.font.draw(game.spritebatch, buildingString, buildingX, buildingY);
-    
+
             // Render individual building counts
-    
+
             Map<BuildingType, Integer> buildingCounts = gameState.buildingManager.getCounter().getBuildingMap();
             for (BuildingType type : BuildingType.values()) {
                 int count = buildingCounts.get(type);
                 String countString = String.format("%c: %d", type.toString().toCharArray()[0], count);
                 buildingY += 20;
                 game.font.draw(game.spritebatch, countString, buildingX, buildingY);
-             
             }
-           
+
             game.font.draw(game.spritebatch, String.valueOf(Gdx.graphics.getFramesPerSecond()), 15, (buildingY + 20));
-            
-           
         }
 
         // Draw the pause menu if paused

@@ -4,7 +4,7 @@ import y111studios.buildings.premade_variants.RecreationVariant;
 import y111studios.position.GridPosition;
 
 /**
- * A class representing an recreational building within the game. This class extends the
+ * A class representing a recreational building within the game. This class extends the
  * {@link Building} class.
  * 
  * @see Building

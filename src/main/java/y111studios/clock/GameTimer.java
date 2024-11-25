@@ -11,11 +11,11 @@ public interface GameTimer {
     /**
      * The maximum duration of the timer in seconds.
      */
-    static final int MAX_SECONDS = 300;
+    int MAX_SECONDS = 300;
     /**
      * The maximum duration of the timer.
      */
-    static final Duration MAX_DURATION = Duration.ofSeconds(MAX_SECONDS);
+    Duration MAX_DURATION = Duration.ofSeconds(MAX_SECONDS);
 
     /**
      * Returns if the timer is paused.

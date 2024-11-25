@@ -1,7 +1,7 @@
 package y111studios.utils;
 
 public enum MenuTab {
-    ACCOMODATION, CATERING_RECREATION, TEACHING;
+    ACCOMMODATION, CATERING_RECREATION, TEACHING;
 
     /**
      * Converts the MenuTab to an integer based on the order of the tabs. This is agnostic to the
@@ -11,7 +11,7 @@ public enum MenuTab {
      */
     public int toInt() {
         switch (this) {
-            case ACCOMODATION:
+            case ACCOMMODATION:
                 return 0;
             case CATERING_RECREATION:
                 return 1;

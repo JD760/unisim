@@ -18,7 +18,7 @@ public enum BuildingType {
         if (building == null) {
             throw new IllegalArgumentException("Building cannot be null.");
         }
-        if (building instanceof AccomodationBuilding) {
+        if (building instanceof AccommodationBuilding) {
             return ACCOMMODATION;
         } else if (building instanceof CateringBuilding) {
             return CATERING;

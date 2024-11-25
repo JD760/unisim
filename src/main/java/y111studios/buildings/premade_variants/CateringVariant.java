@@ -5,7 +5,6 @@ import y111studios.AssetPaths;
 /**
  * An enum representing the different predefined variants a
  * {@link y111studios.buildings.CateringBuilding CateringBuilding}.
- * 
  * This enum is used in conjunction with the {@link y111studios.buildings.BuildingFactory
  * BuildingFactory} class to create instances of {@link y111studios.buildings.CateringBuilding
  * CateringBuilding}.

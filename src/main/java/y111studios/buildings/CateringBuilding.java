@@ -4,7 +4,7 @@ import y111studios.buildings.premade_variants.CateringVariant;
 import y111studios.position.GridPosition;
 
 /**
- * A class representing an catering building within the game. This class extends the
+ * A class representing a catering building within the game. This class extends the
  * {@link Building} class.
  * 
  * @see Building
