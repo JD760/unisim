@@ -28,7 +28,6 @@ import y111studios.buildings.premade_variants.*;
  * A class to interact with LibGDX to render the game window.
  */
 public class MapScreen extends ScreenAdapter {
-
     /**
      * Proportional width of the display.
      */
@@ -37,139 +36,23 @@ public class MapScreen extends ScreenAdapter {
      * Proportional height of the display.
      */
     static final int HEIGHT = 480;
-    /**
-     * Width of map in tiles.
-     */
-    public static final int TILE_WIDTH = 75;
-    /**
-     * Height of map in tiles.
-     */
-    public static final int TILE_HEIGHT = 75;
 
-    private final static Color TRANSPARENT_PREVIEW = new Color(1, 1, 1, 0.475f);
-    private final static Color INVALID_PREVIEW = new Color(1, 0.5f, 0.5f, 0.475f);
-    private final static Color PAUSED_DULLING = new Color(0.5f, 0.5f, 0.5f, 1f);
-    private final static Color NORMAL = new Color(1, 1, 1, 1);
-
-    /**
-     * The game object.
-     */
     final Main game;
-    /**
-     * The game state object.
-     */
     GameState gameState;
-    /**
-     * The textures for the game map.
-     */
     Texture[] gameMap = new Texture[4];
-    /**
-     * The texture for the building menu.
-     */
     Texture menu;
-    /**
-     * The texture for the accommodation menu text.
-     */
     Texture accommodationMenu;
-    /**
-     * The texture for the catering menu text.
-     */
     Texture cateringMenu;
-    /**
-     * The texture for the teaching menu text.
-     */
     Texture teachingMenu;
-    /**
-     * The current tab of the menu.
-     */
-    MenuTab menuTab;
-    /**
-     * The current item of the menu.
-     */
-    int menuItem;
-    /**
-     * The textures for the buildings.
-     */
+    MenuTab currentMenuTab;
+    int currentMenuItem;
     Texture[] buildingTextures;
-    /**
-     * The variants for the buildings.
-     */
     Map<MenuTab, VariantProperties[]> buildingVariants;
-    /**
-     * The viewport to keep proportions consistent when resizing.
-     */
     FitViewport viewport;
-    /**
-     * The texture for the pause menu.
-     */
     Texture pauseMenu;
-
-    /**
-     * The current variant to be placed.
-     */
     VariantProperties currentVariant;
-
-    /**
-     * The current screen position of the cursor.
-     */
-    Vector3 screenPos;
-
-    /**
-     * Toggle flag for debug info screen.
-     */
     boolean showDebugInfo = false;
-
-    /**
-     * The game camera.
-     */
-    Camera camera;
-
-    List<Building> renderOrdering;
-
-    /**
-     * Adds an object to the game.
-     * 
-     * @param variant The object to add.
-     * @return Whether the object was added.
-     */
-    public boolean addObject(VariantProperties variant, GridPosition coords) {
-        Building building = BuildingFactory.createBuilding(variant, coords);
-        if (!gameState.push(building)) {
-            return false;
-        }
-        int index;
-        for (index = 0; index < renderOrdering.size(); index++) {
-            Building current = renderOrdering.get(index);
-            if (current.getArea().getY() > building.getArea().getY()) {
-                break;
-            }
-            if (current.getArea().getX() < building.getArea().getX()) {
-                break;
-            }
-        }
-        renderOrdering.add(index, building);
-        return true;
-    }
-
-    /**
-     * Removes an object from the game.
-     * 
-     * @param coords The tile coordinates of the object to remove.
-     * @return Whether an object was removed.
-     */
-    public boolean removeObject(GridPosition coords) {
-        if (!gameState.removePosition(coords)) {
-            return false;
-        }
-        for (int i = 0; i < renderOrdering.size(); i++) {
-            Building current = renderOrdering.get(i);
-            if (current.contains(coords)) {
-                renderOrdering.remove(i);
-                return true;
-            }
-        }
-        throw new UnreachableException("State de-synced with renderOrdering");
-    }
+    World world;
 
     /**
      * Sets up the camera and loads the background
@@ -178,8 +61,6 @@ public class MapScreen extends ScreenAdapter {
      */
     public MapScreen(final Main game) {
         this.game = game;
-        this.gameState = new GameState(TILE_WIDTH, TILE_HEIGHT);
-        renderOrdering = new LinkedList<>();
         viewport = new FitViewport(WIDTH, HEIGHT);
         viewport.getCamera().position.set(WIDTH / 2f, HEIGHT / 2f, 0);
         viewport.getCamera().update();
@@ -192,9 +73,8 @@ public class MapScreen extends ScreenAdapter {
         cateringMenu = game.getAsset(AssetPaths.CATERING_MENU);
         teachingMenu = game.getAsset(AssetPaths.TEACHING_MENU);
         pauseMenu = game.getAsset(AssetPaths.PAUSE);
-        menuTab = MenuTab.ACCOMMODATION;
-        menuItem = -1;
-        camera = new Camera(2000, 1000, WIDTH, HEIGHT);
+        currentMenuTab = MenuTab.ACCOMMODATION;
+        currentMenuItem = -1;
         buildingTextures = new Texture[] {game.getAsset(AssetPaths.ACC1), game.getAsset(AssetPaths.ACC2), game.getAsset(AssetPaths.ACC3),
                                           game.getAsset(AssetPaths.ACC4), game.getAsset(AssetPaths.ACC5), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.CATER1),
                                           game.getAsset(AssetPaths.CATER2), game.getAsset(AssetPaths.CATER3), game.getAsset(AssetPaths.REC1),
@@ -281,102 +161,49 @@ public class MapScreen extends ScreenAdapter {
                 if(screenPos.y < 100) {
                     if(screenPos.y > 80) {
                         if(screenPos.x < 155) {
-                            menuTab = MenuTab.ACCOMMODATION;
+                            currentMenuTab = MenuTab.ACCOMMODATION;
                         } else if(screenPos.x > 245 && screenPos.x < 395) {
-                            menuTab = MenuTab.CATERING_RECREATION;
+                            currentMenuTab = MenuTab.CATERING_RECREATION;
                         } else if(screenPos.x > 490) {
-                            menuTab = MenuTab.TEACHING;
+                            currentMenuTab = MenuTab.TEACHING;
                         }
-                        menuItem = -1;
+                        currentMenuItem = -1;
                     } else if(screenPos.y < 75 && screenPos.y > 10){
                         int newItem = (int)((screenPos.x - 10) / 80);
-                        if(newItem == menuItem || newItem > 5) {
-                            menuItem = -1;
+                        if(newItem == currentMenuItem || newItem > 5) {
+                            currentMenuItem = -1;
                         } else {
-                            menuItem = newItem;
+                            currentMenuItem = newItem;
                         }
                     }
+                    VariantProperties variant = buildingVariants.get(currentMenuTab)[currentMenuItem];
+                    World.setSelectedBuilding(BuildingFactory.createBuilding(variant, currentGridPosition()));
                     return true;
                 }
-                if(menuItem >= 0 && menuItem < 5) {
-                    addObject(buildingVariants.get(menuTab)[menuItem], pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
-                    menuItem = -1;
-                } else if(menuItem == 5) {
+                if(currentMenuItem >= 0 && currentMenuItem < 5) {
+                    addObject(buildingVariants.get(currentMenuTab)[currentMenuItem], pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
+                    currentMenuItem = -1;
+                } else if(currentMenuItem == 5) {
                     try{
                         removeObject(pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
                     } catch(IllegalStateException ignored) {
                     }
                 }
+                VariantProperties variant = buildingVariants.get(currentMenuTab)[currentMenuItem];
+                World.setSelectedBuilding(BuildingFactory.createBuilding(variant, currentGridPosition()));
                 return true;
             }
 
             @Override
             public boolean mouseMoved(int x, int y) {
-                screenPos = viewport.getCamera().unproject(new Vector3(x, y, 0), viewport.getScreenX(), viewport.getScreenY(), viewport.getScreenWidth(), viewport.getScreenHeight());
+                world.setCursorScreenPos(viewport.getCamera().unproject(
+                    new Vector3(x, y, 0),
+                    viewport.getScreenX(), viewport.getScreenY(),
+                    viewport.getScreenWidth(), viewport.getScreenHeight()
+                ));
                 return true;
             }
         });
-    }
-
-    /**
-     * Converts building tile coordinates to pixel coordinates. Must account for camera.scale and building depth separately.
-     * 
-     * @param coords The tile coordinates to convert.
-     * @return The pixel coordinates.
-     */
-    public int[] tileToPixel(GridPosition coords) {
-        int pixelX = 129 + (coords.getX() + coords.getY()) * 32 - camera.x;
-        int pixelY = -1343 + (coords.getX() - coords.getY()) * 16 + camera.y + (int)(HEIGHT * camera.scale);
-        return new int[] {pixelX, pixelY};
-    }
-
-    /**
-     * Converts pixel coordinates to tile coordinates. Must account for camera.scale separately.
-     * 
-     * @param x The x pixel coordinate to convert.
-     * @param y The y pixel coordinate to convert.
-     * @return A {@link GridPosition} containing the tile coordinates.
-     */
-    public GridPosition pixelToTile(int x, int y) {
-        int sum = (x + camera.x - 129) / 32;
-        int diff = (y - camera.y - (int)(HEIGHT * camera.scale) + 1343) / 16;
-        int tileY = (sum - diff) / 2;
-        int tileX = sum - tileY;
-        try {
-            return new GridPosition(tileX, tileY);
-        } catch(IllegalArgumentException e) {
-            return new GridPosition(10000, 10000);
-        }
-    }
-
-    /**
-     * Returns the current grid position of the cursor.
-     * 
-     * @return The current grid position of the cursor.
-     */
-    public GridPosition currentGridPosition() {
-        return pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale));
-    }
-
-    public void renderBuilding(Building building) {
-        if (menuItem == 5 && building.getArea().contains(currentGridPosition())) {
-            game.spritebatch.setColor(INVALID_PREVIEW);
-        }
-        Texture texture = game.getAsset(building.getTexturePath());
-        int[] pixelCoords = tileToPixel(building.getArea().getOrigin());
-        game.spritebatch.draw(texture,
-            (int)(pixelCoords[0] / camera.scale),
-            (int)((pixelCoords[1] - building.getArea().getHeight() * 16) / camera.scale),
-            (int)(2 * texture.getWidth() / camera.scale),
-            (int)(2 * texture.getHeight() / camera.scale),
-            0, 0, texture.getWidth(), texture.getHeight(),
-            false, false
-        );
-        if (gameState.isPaused()) {
-            game.spritebatch.setColor(PAUSED_DULLING);
-        } else {
-            game.spritebatch.setColor(NORMAL);
-        }
     }
 
     /**
@@ -390,74 +217,29 @@ public class MapScreen extends ScreenAdapter {
 
         viewport.apply();
 
-        camera.shift();
-
         game.spritebatch.begin();
-        // Change colour based to dull the screen if paused
-        if(gameState.isPaused()) {
-            game.spritebatch.setColor(PAUSED_DULLING);
-        } else {
-            game.spritebatch.setColor(NORMAL);
-        }
-        // Draw the game map
-        game.spritebatch.draw(gameMap[0], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y + 1,
-            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
-        game.spritebatch.draw(gameMap[1], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y + 1,
-            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
-        game.spritebatch.draw(gameMap[2], 0, 0, WIDTH, HEIGHT, camera.x + 1, camera.y - gameMap[0].getHeight() + 3,
-            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
-        game.spritebatch.draw(gameMap[3], 0, 0, WIDTH, HEIGHT, camera.x - gameMap[0].getWidth() + 3, camera.y - gameMap[0].getHeight() + 3,
-            (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
-
-        // Add building placement hologram
-
-        if (!gameState.isPaused() && menuItem >= 0 && menuItem < 5) {
-            VariantProperties variant = buildingVariants.get(menuTab)[menuItem];
-
-            Building possibleInstance = BuildingFactory.createBuilding(variant, currentGridPosition());
-            // Set hologram colour
-            if (!gameState.canPlaceBuilding(possibleInstance)) {
-                game.spritebatch.setColor(INVALID_PREVIEW);
-            } else {
-                game.spritebatch.setColor(TRANSPARENT_PREVIEW);
-            }
-
-            renderBuilding(possibleInstance); // Render hologram
-
-            // Reset colour to previous one
-            if(gameState.isPaused()) {
-                game.spritebatch.setColor(PAUSED_DULLING);
-            } else {
-                game.spritebatch.setColor(NORMAL);
-            }
-        }
-
-        // Render buildings
-
-        renderOrdering.forEach(this::renderBuilding);
 
         // Draw the menu
-        game.spritebatch.draw(menu, (menuTab.toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
+        game.spritebatch.draw(menu, (currentMenuTab.toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
         game.spritebatch.draw(accommodationMenu, 5, 85);
         game.spritebatch.draw(cateringMenu, 248, 85);
         game.spritebatch.draw(teachingMenu, 491, 85);
 
         // Draw the appropriate items in the menu
         for(int i = 0; i < 6; i++) {
-            if(i == menuItem || gameState.isPaused()) {
+            if(i == currentMenuItem || gameState.isPaused()) {
                 game.spritebatch.setColor(1, 1, 1, 0.5f);
             } else {
                 game.spritebatch.setColor(1, 1, 1, 1);
             }
             int j = i;
-            if(menuTab.toInt() > 0) {
-                j += menuTab.toInt() * 6;
+            if(currentMenuTab.toInt() > 0) {
+                j += currentMenuTab.toInt() * 6;
             }
             game.spritebatch.draw(buildingTextures[j], 10 + i * 80, 15, 50, (int)((float)buildingTextures[j].getHeight() / buildingTextures[j].getWidth() * 50), 0, 0, buildingTextures[j].getWidth(), buildingTextures[j].getHeight(), false, false);
         }
 
         // Render the time remaining at the top of the screen
-
         Duration timeRemaining = gameState.timeRemaining();
         String timeString = String.format("%02d:%02d", timeRemaining.toMinutesPart(), timeRemaining.toSecondsPart());
 
@@ -468,7 +250,6 @@ public class MapScreen extends ScreenAdapter {
         game.font.draw(game.spritebatch, timeString, textX, textY);
 
         // Render the total count of buildings placed
-
         if (showDebugInfo) {
             int buildingCount = gameState.getCount();
             String buildingString = String.format("Count: %d / %d", buildingCount, BuildingManager.MAX_BUILDINGS);
@@ -478,7 +259,6 @@ public class MapScreen extends ScreenAdapter {
             game.font.draw(game.spritebatch, buildingString, buildingX, buildingY);
 
             // Render individual building counts
-
             Map<BuildingType, Integer> buildingCounts = gameState.buildingManager.getCounter().getBuildingMap();
             for (BuildingType type : BuildingType.values()) {
                 int count = buildingCounts.get(type);
@@ -491,7 +271,6 @@ public class MapScreen extends ScreenAdapter {
         }
 
         // Draw the pause menu if paused
-
         if(gameState.isPaused()) {
             game.spritebatch.setColor(1, 1, 1, 1);
             if (gameState.isTimeUp()) {
@@ -505,9 +284,7 @@ public class MapScreen extends ScreenAdapter {
         game.spritebatch.end();
 
         // Check for game over
-
         if (gameState.isTimeUp()) {
-            camera.velocityReset(); // Lock camera
             gameState.pause(); // Lock pause
         }
     }
@@ -538,5 +315,4 @@ public class MapScreen extends ScreenAdapter {
     public void dispose() {
         game.dispose();
     }
-
 }
