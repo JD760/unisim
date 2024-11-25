@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test that the Int Range class contains the correct values & endpoints.
+ */
 public class IntRangeTest {
 
   @Test

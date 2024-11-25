@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test the Building Counter class.
+ */
 public class BuildingCounterTest {
   private BuildingCounter buildingCounter;
 

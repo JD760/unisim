@@ -3,46 +3,37 @@ package y111studios.buildings;
 import y111studios.position.GridPosition;
 
 /**
- * A controller interface to manage the buildings and maintain an accurate count.
+ * A controller interface to manage the buildings and maintain an accurate
+ * count.
  */
 public interface BuildingController {
 
-    /**
-     * Gets the building that contains the specified position.
-     * 
-     * @param position The position to check
-     * @return The building that contains the specified position
-     */
-    Building getBuilding(GridPosition position);
+  /**
+   * Gets the building that contains the specified position.
 
-    /**
-     * Pushes a building into the array of buildings.
-     * 
-     * @param building The building to add.
-     * @return if the building was successfully added
-     */
-    boolean push(Building building);
+   * @param position The position to check
+   * @return The building that contains the specified position
+   */
+  Building getBuilding(GridPosition position);
 
-    /**
-     * Removes the building that contains the specified position.
-     * 
-     * @param position The position to remove
-     * @return if the building was successfully removed
-     */
-    boolean removePosition(GridPosition position);
+  /**
+   * Pushes a building into the array of buildings.
 
-    /**
-     * Gets the number of buildings placed.
-     * 
-     * @return The number of buildings placed
-     */
-    int getCount();
+   * @param building The building to add.
+   * @return if the building was successfully added
+   */
+  boolean push(Building building);
 
-    /**
-     * Checks if the building array is full.
-     * 
-     * @return if the building array is full
-     */
-    boolean isFull();
+  /**
+   * Removes the building that contains the specified position.
+
+   * @param position The position to remove
+   * @return if the building was successfully removed
+   */
+  boolean removePosition(GridPosition position);
+
+  public int getCount();
+
+  boolean isFull();
 
 }

@@ -8,6 +8,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import y111studios.position.GridArea;
 
+/**
+ * Test map object collision detection.
+ */
 public class CollisionDetectionTest {
 
   @ParameterizedTest
@@ -28,19 +31,19 @@ public class CollisionDetectionTest {
         Arguments.of(square, 9, 8, 10, 1, false), // Case: x + width out of bounds
         Arguments.of(square, 8, 9, 1, 10, false) // Case: y + height out of bounds
     );
-    CollisionDetection yRect = new CollisionDetection(10, 20);
-    Stream<Arguments> yRectCases = Stream.of(
-        Arguments.of(yRect, 1, 1, 3, 3, true), // Typical case
-        Arguments.of(yRect, 4, 15, 4, 3, true), // Case: correct check of y vs. height
-        Arguments.of(yRect, 15, 6, 2, 3, false) // Case: correct check of x vs. width
+    CollisionDetection regionY = new CollisionDetection(10, 20);
+    Stream<Arguments> regionYcases = Stream.of(
+        Arguments.of(regionY, 1, 1, 3, 3, true), // Typical case
+        Arguments.of(regionY, 4, 15, 4, 3, true), // Case: correct check of y vs. height
+        Arguments.of(regionY, 15, 6, 2, 3, false) // Case: correct check of x vs. width
     );
-    CollisionDetection xRect = new CollisionDetection(20, 10);
-    Stream<Arguments> xRectCases = Stream.of(
-        Arguments.of(xRect, 1, 1, 3, 3, true), // Typical case
-        Arguments.of(xRect, 15, 4, 3, 4, true), // Case: correct check of y vs. height
-        Arguments.of(xRect, 6, 15, 3, 2, false) // Case: correct check of x vs. width
+    CollisionDetection regionX = new CollisionDetection(20, 10);
+    Stream<Arguments> regionXcases = Stream.of(
+        Arguments.of(regionX, 1, 1, 3, 3, true), // Typical case
+        Arguments.of(regionX, 15, 4, 3, 4, true), // Case: correct check of y vs. height
+        Arguments.of(regionX, 6, 15, 3, 2, false) // Case: correct check of x vs. width
     );
-    Stream<Arguments> rectCases = Stream.concat(xRectCases, yRectCases);
+    Stream<Arguments> rectCases = Stream.concat(regionXcases, regionYcases);
     return Stream.concat(squareCases, rectCases);
   }
 }

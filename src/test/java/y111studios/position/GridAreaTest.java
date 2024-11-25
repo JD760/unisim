@@ -10,6 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+/**
+ * Test the Grid Area and edge cases associated with placement/area construction.
+ */
 public class GridAreaTest {
 
   @Tag("Constructor")
