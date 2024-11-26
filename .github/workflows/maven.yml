@@ -12,11 +12,17 @@ on:
   push:
 
 jobs:
+  setup:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
   test:
     runs-on: [ubuntu-latest]
     steps:
     - name: Test with Maven
-      run: mvn test
+      run: mvn test --file pom.xml
     - name: JUnit Test Report
       uses: mikepenz/action-junit-report@v5.0.0
 
