@@ -16,8 +16,6 @@ on:
 
 jobs:
   build:
-    # run only if the previous testing workflow(s) completed successfully
-    if: ${{github.event.workflow_run.conclusion == "success"}} 
     runs-on: [ubuntu-latest]
 
     steps:
