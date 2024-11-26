@@ -45,14 +45,14 @@ public class MapScreen extends ScreenAdapter {
     Texture accommodationMenu;
     Texture cateringMenu;
     Texture teachingMenu;
-    MenuTab currentMenuTab;
-    Integer currentMenuItem;
+    MenuTab[] currentMenuTab = new MenuTab[1];
+    int[] currentMenuItem = new int[1];
     Texture[] buildingTextures;
     Map<MenuTab, VariantProperties[]> buildingVariants;
     FitViewport viewport;
     Texture pauseMenu;
     VariantProperties currentVariant;
-    Boolean showDebugInfo = false;
+    boolean[] showDebugInfo = {false};
     World world;
     InputMultiplexer inputMultiplexer;
 
@@ -76,8 +76,8 @@ public class MapScreen extends ScreenAdapter {
         cateringMenu = game.getAsset(AssetPaths.CATERING_MENU);
         teachingMenu = game.getAsset(AssetPaths.TEACHING_MENU);
         pauseMenu = game.getAsset(AssetPaths.PAUSE);
-        currentMenuTab = MenuTab.ACCOMMODATION;
-        currentMenuItem = -1;
+        currentMenuTab[0] = MenuTab.ACCOMMODATION;
+        currentMenuItem[0] = -1;
         buildingTextures = new Texture[] {game.getAsset(AssetPaths.ACC1), game.getAsset(AssetPaths.ACC2), game.getAsset(AssetPaths.ACC3),
                                           game.getAsset(AssetPaths.ACC4), game.getAsset(AssetPaths.ACC5), game.getAsset(AssetPaths.TRASH), game.getAsset(AssetPaths.CATER1),
                                           game.getAsset(AssetPaths.CATER2), game.getAsset(AssetPaths.CATER3), game.getAsset(AssetPaths.REC1),
@@ -124,21 +124,21 @@ public class MapScreen extends ScreenAdapter {
         game.spritebatch.begin();
 
         // Draw the menu
-        game.spritebatch.draw(menu, (currentMenuTab.toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
+        game.spritebatch.draw(menu, (currentMenuTab[0].toInt() - 2) * 243, 0, 1126, 100, 0, 0, menu.getWidth(), menu.getHeight(), false, false);
         game.spritebatch.draw(accommodationMenu, 5, 85);
         game.spritebatch.draw(cateringMenu, 248, 85);
         game.spritebatch.draw(teachingMenu, 491, 85);
 
         // Draw the appropriate items in the menu
         for(int i = 0; i < 6; i++) {
-            if(i == currentMenuItem || gameState.isPaused()) {
+            if(i == currentMenuItem[0] || gameState.isPaused()) {
                 game.spritebatch.setColor(1, 1, 1, 0.5f);
             } else {
                 game.spritebatch.setColor(1, 1, 1, 1);
             }
             int j = i;
-            if(currentMenuTab.toInt() > 0) {
-                j += currentMenuTab.toInt() * 6;
+            if(currentMenuTab[0].toInt() > 0) {
+                j += currentMenuTab[0].toInt() * 6;
             }
             game.spritebatch.draw(buildingTextures[j], 10 + i * 80, 15, 50, (int)((float)buildingTextures[j].getHeight() / buildingTextures[j].getWidth() * 50), 0, 0, buildingTextures[j].getWidth(), buildingTextures[j].getHeight(), false, false);
         }
@@ -154,7 +154,7 @@ public class MapScreen extends ScreenAdapter {
         game.font.draw(game.spritebatch, timeString, textX, textY);
 
         // Render the total count of buildings placed
-        if (showDebugInfo) {
+        if (showDebugInfo[0]) {
             int buildingCount = gameState.getCount();
             String buildingString = String.format("Count: %d / %d", buildingCount, BuildingManager.MAX_BUILDINGS);
 

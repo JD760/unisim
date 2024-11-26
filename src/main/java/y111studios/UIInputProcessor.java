@@ -13,17 +13,17 @@ import y111studios.utils.MenuTab;
 
 public class UIInputProcessor implements InputProcessor {
     Viewport viewport;
-    MenuTab currentMenuTab;
-    Integer currentMenuItem;
+    MenuTab[] currentMenuTab;
+    int[] currentMenuItem;
     World world;
     GameState gameState;
     Map<MenuTab, VariantProperties[]> buildingVariants;
-    Boolean showDebugInfo;
+    boolean[] showDebugInfo;
 
     UIInputProcessor(
-        Viewport viewport, MenuTab currentMenuTab, Integer currentMenuItem, World world,
+        Viewport viewport, MenuTab[] currentMenuTab, int[] currentMenuItem, World world,
         GameState gameState, Map<MenuTab, VariantProperties[]> buildingVariants,
-        Boolean showDebugInfo
+        boolean[] showDebugInfo
     ) {
         this.viewport = viewport;
         this.currentMenuTab = currentMenuTab;
@@ -49,7 +49,7 @@ public class UIInputProcessor implements InputProcessor {
             return true;
         }
         if (keyCode == Input.Keys.TAB) {
-            showDebugInfo = !showDebugInfo;
+            showDebugInfo[0] = !showDebugInfo[0];
             return true;
         }
         return false;
@@ -71,23 +71,27 @@ public class UIInputProcessor implements InputProcessor {
         if(screenPos.y < 100) {
             if(screenPos.y > 80) {
                 if(screenPos.x < 155) {
-                    currentMenuTab = MenuTab.ACCOMMODATION;
+                    currentMenuTab[0] = MenuTab.ACCOMMODATION;
                 } else if(screenPos.x > 245 && screenPos.x < 395) {
-                    currentMenuTab = MenuTab.CATERING_RECREATION;
+                    currentMenuTab[0] = MenuTab.CATERING_RECREATION;
                 } else if(screenPos.x > 490) {
-                    currentMenuTab = MenuTab.TEACHING;
+                    currentMenuTab[0] = MenuTab.TEACHING;
                 }
-                currentMenuItem = -1;
+                currentMenuItem[0] = -1;
+                world.setSelectedBuilding(null);
             } else if(screenPos.y < 75 && screenPos.y > 10){
                 int newItem = (int)((screenPos.x - 10) / 80);
-                if(newItem == currentMenuItem || newItem > 5) {
-                    currentMenuItem = -1;
+                if(newItem == currentMenuItem[0] || newItem > 5) {
+                    currentMenuItem[0] = -1;
+                    world.setSelectedBuilding(null);
                 } else {
-                    currentMenuItem = newItem;
+                    currentMenuItem[0] = newItem;
                 }
             }
-            VariantProperties variant = buildingVariants.get(currentMenuTab)[currentMenuItem];
-            world.setSelectedBuilding(BuildingFactory.createBuilding(variant, world.currentGridPosition()));
+            if (currentMenuItem[0] >= 0 && currentMenuItem[0] < 5) {
+                VariantProperties variant = buildingVariants.get(currentMenuTab[0])[currentMenuItem[0]];
+                world.setSelectedBuilding(BuildingFactory.createBuilding(variant, world.currentGridPosition()));
+            }
             return true;
         }
         return false;
