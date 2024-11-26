@@ -1,0 +1,15 @@
+name: Unit & Integration Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        - name: JUnit Testing
+          uses: mikepenz/action-junit-report@v5.0.0

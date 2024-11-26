@@ -9,14 +9,15 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Unit & Integration Tests"]
+    branches: ["main"]
+    types: completed
 
 jobs:
   build:
-
+    # run only if the previous testing workflow(s) completed successfully
+    if: ${{github.event.workflow_run.conclusion == "success"}} 
     runs-on: [ubuntu-latest]
 
     steps:
