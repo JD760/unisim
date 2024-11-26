@@ -47,7 +47,7 @@ public class World {
     Texture[] gameMap = new Texture[4];
     @Setter Vector3 cursorScreenPos;
     @Getter Camera camera;
-    @Setter Building possibleInstance;
+    @Setter Building selectedBuilding;
     List<Building> renderOrdering;
 
     /**
@@ -100,9 +100,9 @@ public class World {
      * 
      * @param game Reference to game manager
      */
-    public World(final Main game) {
+    public World(final Main game, GameState gameState) {
         this.game = game;
-        this.gameState = new GameState(TILE_WIDTH, TILE_HEIGHT);
+        this.gameState = gameState;
         renderOrdering = new LinkedList<>();
         gameMap[0] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_LEFT);
         gameMap[1] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_RIGHT);
@@ -202,15 +202,15 @@ public class World {
             (int)(WIDTH * camera.scale), (int)(HEIGHT * camera.scale), false, false);
 
         // Add building placement hologram
-        if (!gameState.isPaused() && possibleInstance != null) {
+        if (!gameState.isPaused() && selectedBuilding != null) {
             // Set hologram colour
-            if (!gameState.canPlaceBuilding(possibleInstance)) {
+            if (!gameState.canPlaceBuilding(selectedBuilding)) {
                 game.spritebatch.setColor(INVALID_PREVIEW);
             } else {
                 game.spritebatch.setColor(TRANSPARENT_PREVIEW);
             }
 
-            renderBuilding(possibleInstance); // Render hologram
+            renderBuilding(selectedBuilding); // Render hologram
 
             // Reset colour to previous one
             if(gameState.isPaused()) {

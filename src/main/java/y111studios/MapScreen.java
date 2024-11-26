@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Color;
@@ -28,14 +29,14 @@ import y111studios.buildings.premade_variants.*;
  * A class to interact with LibGDX to render the game window.
  */
 public class MapScreen extends ScreenAdapter {
-    /**
-     * Proportional width of the display.
-     */
+    // Proportional width of the display.
     static final int WIDTH = 640;
-    /**
-     * Proportional height of the display.
-     */
+    // Proportional height of the display.
     static final int HEIGHT = 480;
+    // Width of map in tiles.
+    public static final int TILE_WIDTH = 75;
+    // Height of map in tiles.
+    public static final int TILE_HEIGHT = 75;
 
     final Main game;
     GameState gameState;
@@ -45,14 +46,15 @@ public class MapScreen extends ScreenAdapter {
     Texture cateringMenu;
     Texture teachingMenu;
     MenuTab currentMenuTab;
-    int currentMenuItem;
+    Integer currentMenuItem;
     Texture[] buildingTextures;
     Map<MenuTab, VariantProperties[]> buildingVariants;
     FitViewport viewport;
     Texture pauseMenu;
     VariantProperties currentVariant;
-    boolean showDebugInfo = false;
+    Boolean showDebugInfo = false;
     World world;
+    InputMultiplexer inputMultiplexer;
 
     /**
      * Sets up the camera and loads the background
@@ -61,6 +63,7 @@ public class MapScreen extends ScreenAdapter {
      */
     public MapScreen(final Main game) {
         this.game = game;
+        this.gameState = new GameState(TILE_WIDTH, TILE_HEIGHT);
         viewport = new FitViewport(WIDTH, HEIGHT);
         viewport.getCamera().position.set(WIDTH / 2f, HEIGHT / 2f, 0);
         viewport.getCamera().update();
@@ -89,6 +92,12 @@ public class MapScreen extends ScreenAdapter {
         System.arraycopy(RecreationVariant.values(), 0, jointTabVariants, CateringVariant.values().length, RecreationVariant.values().length);
 
         buildingVariants.put(MenuTab.CATERING_RECREATION, jointTabVariants);
+
+        world = new World(game, gameState);
+
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(new UIInputProcessor(viewport, currentMenuTab, currentMenuItem, world, gameState, buildingVariants, showDebugInfo));
+        inputMultiplexer.addProcessor(new WorldInputProcessor(currentMenuItem, world, gameState, buildingVariants, currentMenuTab, viewport));
     }
 
     /**
@@ -96,114 +105,7 @@ public class MapScreen extends ScreenAdapter {
      */
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new InputAdapter() {
-            @Override
-            public boolean keyDown(int keyCode) {
-                if(keyCode == Input.Keys.ESCAPE) {
-                    if (gameState.isPaused()) {
-                        gameState.resume();    
-                    } else {
-                    	camera.velocityReset();
-                        gameState.pause();
-                    }
-                    camera.addVelocity(-1 * camera.vx, -1 * camera.vy);
-                    return true;
-                }
-                if(gameState.isPaused()) {
-                    return true;
-                }
-                if (keyCode == Input.Keys.TAB) {
-                    showDebugInfo = !showDebugInfo;
-                }
-                if(keyCode == Input.Keys.RIGHT || keyCode == Input.Keys.D) {
-                    camera.addVelocity(8, 0);
-                } else if(keyCode == Input.Keys.LEFT || keyCode == Input.Keys.A) {
-                    camera.addVelocity(-8, 0);
-                } else if(keyCode == Input.Keys.DOWN || keyCode == Input.Keys.S) {
-                    camera.addVelocity(0, 8);
-                } else if(keyCode == Input.Keys.UP || keyCode == Input.Keys.W) {
-                    camera.addVelocity(0, -8);
-                } else if(keyCode == Input.Keys.X) {
-                    if(camera.scale < 5) camera.scale *= 1.5f;
-                } else if(keyCode == Input.Keys.Z) {
-                    if(camera.scale > 0.5) camera.scale /= 1.5f;
-                }
-                return true;
-            }
-
-            @Override
-            public boolean keyUp(int keyCode) {
-                if(gameState.isPaused()) {
-                    return true;
-                }
-                if(keyCode == Input.Keys.RIGHT || keyCode == Input.Keys.D) {
-                    camera.addVelocity(-8, 0);
-                    camera.velocityReset();
-                } else if(keyCode == Input.Keys.LEFT || keyCode == Input.Keys.A) {
-                    camera.addVelocity(8, 0);
-                    camera.velocityReset();
-                } else if(keyCode == Input.Keys.DOWN || keyCode == Input.Keys.S) {
-                    camera.addVelocity(0, -8);
-                    camera.velocityReset();
-                } else if(keyCode == Input.Keys.UP || keyCode == Input.Keys.W) {
-                    camera.addVelocity(0, 8);
-                    camera.velocityReset();
-                }
-                return true;
-            }
-
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                if(gameState.isPaused()) {
-                    return true;
-                }
-                Vector3 screenPos = viewport.getCamera().unproject(new Vector3(screenX, screenY, 0), viewport.getScreenX(), viewport.getScreenY(), viewport.getScreenWidth(), viewport.getScreenHeight());
-                if(screenPos.y < 100) {
-                    if(screenPos.y > 80) {
-                        if(screenPos.x < 155) {
-                            currentMenuTab = MenuTab.ACCOMMODATION;
-                        } else if(screenPos.x > 245 && screenPos.x < 395) {
-                            currentMenuTab = MenuTab.CATERING_RECREATION;
-                        } else if(screenPos.x > 490) {
-                            currentMenuTab = MenuTab.TEACHING;
-                        }
-                        currentMenuItem = -1;
-                    } else if(screenPos.y < 75 && screenPos.y > 10){
-                        int newItem = (int)((screenPos.x - 10) / 80);
-                        if(newItem == currentMenuItem || newItem > 5) {
-                            currentMenuItem = -1;
-                        } else {
-                            currentMenuItem = newItem;
-                        }
-                    }
-                    VariantProperties variant = buildingVariants.get(currentMenuTab)[currentMenuItem];
-                    World.setSelectedBuilding(BuildingFactory.createBuilding(variant, currentGridPosition()));
-                    return true;
-                }
-                if(currentMenuItem >= 0 && currentMenuItem < 5) {
-                    addObject(buildingVariants.get(currentMenuTab)[currentMenuItem], pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
-                    currentMenuItem = -1;
-                } else if(currentMenuItem == 5) {
-                    try{
-                        removeObject(pixelToTile((int)(screenPos.x * camera.scale), (int)(screenPos.y * camera.scale)));
-                    } catch(IllegalStateException ignored) {
-                    }
-                }
-                VariantProperties variant = buildingVariants.get(currentMenuTab)[currentMenuItem];
-                World.setSelectedBuilding(BuildingFactory.createBuilding(variant, currentGridPosition()));
-                return true;
-            }
-
-            @Override
-            public boolean mouseMoved(int x, int y) {
-                world.setCursorScreenPos(viewport.getCamera().unproject(
-                    new Vector3(x, y, 0),
-                    viewport.getScreenX(), viewport.getScreenY(),
-                    viewport.getScreenWidth(), viewport.getScreenHeight()
-                ));
-                return true;
-            }
-        });
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     /**
@@ -216,6 +118,8 @@ public class MapScreen extends ScreenAdapter {
         ScreenUtils.clear(0, 0, 0, 0);
 
         viewport.apply();
+
+        world.render(delta);
 
         game.spritebatch.begin();
 

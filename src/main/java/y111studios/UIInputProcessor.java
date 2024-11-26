@@ -2,6 +2,7 @@ package y111studios;
 
 import java.util.Map;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -17,19 +18,40 @@ public class UIInputProcessor implements InputProcessor {
     World world;
     GameState gameState;
     Map<MenuTab, VariantProperties[]> buildingVariants;
+    Boolean showDebugInfo;
 
     UIInputProcessor(
         Viewport viewport, MenuTab currentMenuTab, Integer currentMenuItem, World world,
-        GameState gameState, Map<MenuTab, VariantProperties[]> buildingVariants
+        GameState gameState, Map<MenuTab, VariantProperties[]> buildingVariants,
+        Boolean showDebugInfo
     ) {
         this.viewport = viewport;
         this.currentMenuTab = currentMenuTab;
         this.currentMenuItem = currentMenuItem;
         this.world = world;
         this.gameState = gameState;
+        this.buildingVariants = buildingVariants;
+        this.showDebugInfo = showDebugInfo;
     }
 
     public boolean keyDown(int keyCode) {
+        if(keyCode == Input.Keys.ESCAPE) {
+            if (gameState.isPaused()) {
+                gameState.resume();    
+            } else {
+                world.getCamera().velocityReset();
+                gameState.pause();
+            }
+            world.getCamera().addVelocity(-1 * world.getCamera().vx, -1 * world.getCamera().vy);
+            return true;
+        }
+        if(gameState.isPaused()) {
+            return true;
+        }
+        if (keyCode == Input.Keys.TAB) {
+            showDebugInfo = !showDebugInfo;
+            return true;
+        }
         return false;
     }
 
