@@ -14,6 +14,9 @@ import y111studios.buildings.premade_variants.RecreationVariant;
 import y111studios.buildings.premade_variants.TeachingVariant;
 import y111studios.position.GridPosition;
 
+/**
+ * Test the Building Factory.
+ */
 public class BuildingFactoryTest {
 
   private static final GridPosition DEFAULT_POSITION = new GridPosition(0, 0);

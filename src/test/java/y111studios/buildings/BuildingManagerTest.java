@@ -1,5 +1,10 @@
 package y111studios.buildings;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +15,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import y111studios.buildings.premade_variants.AccommodationVariant;
 import y111studios.position.GridPosition;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Test the Building Manager.
+ */
 public class BuildingManagerTest {
 
   private BuildingManager manager;

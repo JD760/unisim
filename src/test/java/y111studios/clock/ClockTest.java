@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test the Game clock.
+ */
 public class ClockTest {
 
   @Test

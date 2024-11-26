@@ -3,21 +3,24 @@ package y111studios.buildings;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-
 import y111studios.buildings.premade_variants.AccommodationVariant;
-import y111studios.buildings.premade_variants.VariantProperties;
 import y111studios.buildings.premade_variants.CateringVariant;
 import y111studios.buildings.premade_variants.RecreationVariant;
 import y111studios.buildings.premade_variants.TeachingVariant;
+import y111studios.buildings.premade_variants.VariantProperties;
 import y111studios.position.GridPosition;
 import y111studios.utils.UnreachableException;
 
 /**
  * A factory class for creating new {@link Building} instances.
  *
- * <p>The factory class is used to create new instances of the building classes. The factory class
- * ensures that the constructors of the building classes are correctly defined at startup and uses a
- * function to create a new instance of the building class with any variant at a specified position.
+ * <p>
+ * The factory class is used to create new instances of the building classes.
+ * The factory class
+ * ensures that the constructors of the building classes are correctly defined
+ * at startup and uses a
+ * function to create a new instance of the building class with any variant at a
+ * specified position.
  *
  * @see Building
  * @see VariantProperties
@@ -31,16 +34,19 @@ public final class BuildingFactory {
   }
 
   /**
-   * A map of the constructors for each building class. The key is the class of the building and the
+   * A map of the constructors for each building class. The key is the class of
+   * the building and the
    * value is the constructor of the building.
    *
    * @see #tryRegisterConstructor(Class, Class)
    */
-  private static final Map<Class<? extends VariantProperties>, Constructor<? extends Building>>
+  private static final Map<Class<? extends VariantProperties>, Constructor<? extends Building>> 
       CONSTRUCTORS;
 
-  // At startup, try to register the constructors of the building classes using each variant. This
-  // is done to ensure that the constructors are correctly defined at the start rather than during
+  // At startup, try to register the constructors of the building classes using
+  // each variant. This
+  // is done to ensure that the constructors are correctly defined at the start
+  // rather than during
   // runtime.
 
   static {
@@ -58,13 +64,17 @@ public final class BuildingFactory {
   }
 
   /**
-   * Try to register the constructor of the building class attached to the variant. This is done to
-   * ensure that each building class has a constructor that takes a {@link GridPosition} and variant
-   * class as arguments. If the constructor is not defined, an exception is thrown.
+   * Try to register the constructor of the building class attached to the
+   * variant. This is done to
+   * ensure that each building class has a constructor that takes a
+   * {@link GridPosition} and variant
+   * class as arguments. If the constructor is not defined, an exception is
+   * thrown.
    *
-   * @param <V> the type of the variant
-   * @param variantClass the class of the variant to register the constructor for
-   * @param buildingClass the subclass of {@link Building} to register the constructor for
+   * @param <V>           the type of the variant
+   * @param variantClass  the class of the variant to register the constructor for
+   * @param buildingClass the subclass of {@link Building} to register the
+   *                      constructor for
    * @throws UnreachableException if the constructor is not defined in the class
    */
   private static <V extends VariantProperties> void tryRegisterConstructor(
@@ -77,7 +87,8 @@ public final class BuildingFactory {
       // This should not happen, as the constructor should be defined in the class
       throw new UnreachableException("Constructor undefined", e);
     } catch (SecurityException e) {
-      // Issue that can arise from constructor access permissions. i.e. private / protected
+      // Issue that can arise from constructor access permissions. i.e. private /
+      // protected
       // constructors
       throw new UnreachableException("Constructor cannot be accessed", e);
     }
@@ -86,9 +97,10 @@ public final class BuildingFactory {
   }
 
   /**
-   * Create a new building instance of the specified variant at the specified position.
+   * Create a new building instance of the specified variant at the specified
+   * position.
    *
-   * @param variant the variant of the building
+   * @param variant  the variant of the building
    * @param position the position of the building
    * @return a new instance of the building
    * @throws IllegalArgumentException if the variant or position is null
