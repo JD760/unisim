@@ -84,9 +84,9 @@ public class CollisionDetectionTest {
     assertEquals(expected, cd.removeBuilding(new GridArea(x, y, width, height)));
   }
   /**
-   * Tests collision detection when buildings are placed, firstly checking
-   *  if buildings can be placed withing the bounds and not out of bounds 
-   *  and then checking if buildings are blocked from being placed on top of each other.
+   * Tests collision detection when attempting to remove buildings, firstly checking
+   *  if buildings can be removed from within the bounds and then that the method 
+   *  returns false if the area is out of bounds.
    */
   private static Stream<Arguments> removeBuildingCases() {
     CollisionDetection bound = new CollisionDetection(10, 10);
