@@ -29,9 +29,9 @@ import y111studios.buildings.premade_variants.*;
 
 public class World {
     // Proportional width of the display.
-    static final int WIDTH = 640;
+    private static final int WIDTH = 640;
     // Proportional height of the display.
-    static final int HEIGHT = 480;
+    private static final int HEIGHT = 480;
     // Width of map in tiles.
     public static final int TILE_WIDTH = 75;
     // Height of map in tiles.
@@ -42,13 +42,13 @@ public class World {
     private final static Color PAUSED_DULLING = new Color(0.5f, 0.5f, 0.5f, 1f);
     private final static Color NORMAL = new Color(1, 1, 1, 1);
 
-    final Main game;
-    GameState gameState;
-    Texture[] gameMap = new Texture[4];
-    @Setter Vector3 cursorScreenPos;
-    @Getter Camera camera;
-    @Setter Building selectedBuilding;
-    List<Building> renderOrdering;
+    private final Main game;
+    private GameState gameState;
+    private Texture[] gameMap = new Texture[4];
+    private @Setter Vector3 cursorScreenPos;
+    private @Getter Camera camera;
+    private @Setter Building selectedBuilding;
+    private @Getter List<Building> buildings;
 
     /**
      * Adds an object to the game.
@@ -62,8 +62,8 @@ public class World {
             return false;
         }
         int index;
-        for (index = 0; index < renderOrdering.size(); index++) {
-            Building current = renderOrdering.get(index);
+        for (index = 0; index < buildings.size(); index++) {
+            Building current = buildings.get(index);
             if (current.getArea().getY() > building.getArea().getY()) {
                 break;
             }
@@ -71,7 +71,7 @@ public class World {
                 break;
             }
         }
-        renderOrdering.add(index, building);
+        buildings.add(index, building);
         return true;
     }
 
@@ -85,10 +85,10 @@ public class World {
         if (!gameState.removePosition(coords)) {
             return false;
         }
-        for (int i = 0; i < renderOrdering.size(); i++) {
-            Building current = renderOrdering.get(i);
+        for (int i = 0; i < buildings.size(); i++) {
+            Building current = buildings.get(i);
             if (current.contains(coords)) {
-                renderOrdering.remove(i);
+                buildings.remove(i);
                 return true;
             }
         }
@@ -103,12 +103,14 @@ public class World {
     public World(final Main game, GameState gameState) {
         this.game = game;
         this.gameState = gameState;
-        renderOrdering = new LinkedList<>();
-        gameMap[0] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_LEFT);
-        gameMap[1] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_RIGHT);
-        gameMap[2] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_LEFT);
-        gameMap[3] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_RIGHT);
+        buildings = new LinkedList<>();
         camera = new Camera(2000, 1000, WIDTH, HEIGHT);
+        if (game != null) {
+            gameMap[0] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_LEFT);
+            gameMap[1] = game.getAsset(AssetPaths.MAP_BACKGROUND_TOP_RIGHT);
+            gameMap[2] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_LEFT);
+            gameMap[3] = game.getAsset(AssetPaths.MAP_BACKGROUND_BOTTOM_RIGHT);
+        }
     }
 
     /**
@@ -221,7 +223,7 @@ public class World {
         }
 
         // Render buildings
-        renderOrdering.forEach(this::renderBuilding);
+        buildings.forEach(this::renderBuilding);
 
         game.spritebatch.end();
 

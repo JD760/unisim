@@ -58,7 +58,7 @@ public class MapScreen extends ScreenAdapter {
 
     /**
      * Sets up the camera and loads the background
-     * 
+     *
      * @param game Reference to game manager
      */
     public MapScreen(final Main game) {
@@ -110,7 +110,7 @@ public class MapScreen extends ScreenAdapter {
 
     /**
      * Renders the game each tick.
-     * 
+     *
      * @param delta The time since the previous tick.
      */
     @Override
@@ -195,7 +195,7 @@ public class MapScreen extends ScreenAdapter {
 
     /**
      * Handles resizing of the game window.
-     * 
+     *
      * @param width The new width of the window.
      * @param height The new height of the window.
      */
